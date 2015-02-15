@@ -1,0 +1,73 @@
+---
+title: "PeerAssessment"
+output: html_document
+---
+
+First load the data and change the date into the correct format 
+
+```{r, echo=TRUE}
+activity = read.csv("activity.csv")
+activity$date = as.Date(activity$date, format = "%m/%d/%Y")
+```
+
+
+Calculate the total number of steps taken per day 
+```{r, echo=TRUE}
+total = aggregate(activity$steps ~ as.factor(activity$date), FUN=sum)
+colnames(total) = c("date", "totalSteps")
+hist(total$totalSteps, breaks = 15, col = "lightblue", xlab = "Total steps per day", main = "Histogram of total steps per day")
+
+```
+
+The mean total number of steps taken is 
+```{r, echo=TRUE}
+mean(total$totalSteps)
+```
+
+The median total number of steps taken is 
+```{r, echo=TRUE}
+median(total$totalSteps)
+```
+
+Time series plot of 5-min interval and the average number of steps taken
+
+```{r, echo=TRUE}
+yvals = aggregate(activity$steps ~ activity$interval, FUN=mean)
+colnames(yvals) = c("interval", "totalSteps")
+
+plot(yvals$interval, yvals$totalSteps, type="l", xlab = "Interval", ylab = "Average total steps per day", main = "Average steps per interval")
+```
+
+5-minute interval with maximum number of steps
+```{r, echo=TRUE}
+yvals$interval[which(yvals$totalSteps == max(yvals$totalSteps))]
+```
+
+Finding total number of NAs in the data set 
+```{r, echo=TRUE}
+sum(is.na(activity$steps))
+```
+
+Replace NAs with mean in each interval 
+```{r, echo=TRUE}
+
+```
+
+New Factor variable with weekday/weekend
+```{r, echo=TRUE}
+weekends = as.factor(weekdays(activity$date) %in% c('Sunday', 'Saturday'))
+activity$weekends = weekends 
+par(mfrow=c(2,1))
+week = activity[which(activity$weekends==F),]
+weekdays.val = aggregate(week$steps ~ week$interval, FUN=mean)
+colnames(weekdays.val) = c("interval", "steps")
+end = activity[which(activity$weekends==T),]
+weekends.val = aggregate(end$steps ~ end$interval, FUN = mean)
+colnames(weekends.val) = c("interval", "steps")
+```
+
+Plotting Weekend vs weekday steps 
+```{r, echo=TRUE}
+plot(weekdays.val$steps ~ weekdays.val$interval, type = "l", xlab="Interval", main = "Weekdays", ylab = "Steps")
+plot(weekends.val$steps ~ weekends.val$interval, type = "l", xlab="Interval", main = "Weekends", ylab = "Steps")
+```
